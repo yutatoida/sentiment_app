@@ -8,8 +8,6 @@ sentiment_pipeline = pipeline("sentiment-analysis")
 
 # ラベルを日本語にマッピングする辞書
 label_mapping = {
-    'LABEL_0': 'ネガティブ',
-    'LABEL_1': 'ポジティブ',
     'POSITIVE': 'ポジティブ',
     'NEGATIVE': 'ネガティブ'
 }
@@ -23,7 +21,16 @@ def analyze():
     text = request.form['text']
     result = sentiment_pipeline(text)[0]
     result['label'] = label_mapping.get(result['label'], '未知のラベル')
-    return render_template('index.html', text=text, result=result)
+
+    # 感情に基づいたメッセージを生成
+    if result['label'] == 'ポジティブ':
+        response_message = "この文章はポジティブな感情を含んでいます。"
+    elif result['label'] == 'ネガティブ':
+        response_message = "この文章はネガティブな感情を含んでいます。"
+    else:
+        response_message = "この文章は中立的な感情を持っています。"
+
+    return render_template('index.html', text=text, result=result, response_message=response_message)
 
 if __name__ == '__main__':
     app.run(debug=True)
