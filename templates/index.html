@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Sentiment Analysis</title>
+  </head>
+  <body>
+    <div style="text-align: center; margin-top: 50px;">
+      <h1>感情分析</h1>
+      <form method="POST" action="/analyze">
+        <textarea name="text" rows="4" cols="50" placeholder="Enter text here..."></textarea><br>
+        <input type="submit" value="Analyze">
+      </form>
+      {% if result %}
+        <h2>結果:</h2>
+        <p>Text: {{ text }}</p>
+        <p>Label: {{ result['label'] }}</p>
+        <p>Score: {{ result['score'] }}</p>
+      {% endif %}
+    </div>
+  </body>
+</html>
