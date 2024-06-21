@@ -1,36 +1,46 @@
-from flask import Flask, request, render_template
+from flask import Flask, render_template, request
 from transformers import pipeline
+from analyzer import TextAnalyzer
 
 app = Flask(__name__)
 
 # 感情分析パイプラインの初期化
-sentiment_pipeline = pipeline("sentiment-analysis")
+classifier = pipeline('sentiment-analysis')
 
-# ラベルを日本語にマッピングする辞書
-label_mapping = {
-    'POSITIVE': 'ポジティブ',
-    'NEGATIVE': 'ネガティブ'
-}
+# テキスト解析クラスの初期化
+text_analyzer = TextAnalyzer()
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    result = None
+    response_message = ""
+    text = ""
+    analysis = None
 
-@app.route('/analyze', methods=['POST'])
-def analyze():
-    text = request.form['text']
-    result = sentiment_pipeline(text)[0]
-    result['label'] = label_mapping.get(result['label'], '未知のラベル')
+    if request.method == 'POST':
+        text = request.form['text']
+        analysis_result = classifier(text)[0]
+        label = analysis_result['label']
+        score = analysis_result['score']
 
-    # 感情に基づいたメッセージを生成
-    if result['label'] == 'ポジティブ':
-        response_message = "この文章はポジティブな感情を含んでいます。"
-    elif result['label'] == 'ネガティブ':
-        response_message = "この文章はネガティブな感情を含んでいます。"
-    else:
-        response_message = "この文章は中立的な感情を持っています。"
+        # スコアに基づいたメッセージの生成
+        if label == 'POSITIVE':
+            response_message = "この文章はポジティブな感情を含んでいます。"
+        elif label == 'NEGATIVE':
+            response_message = "この文章はネガティブな感情を含んでいます。"
+        else:
+            response_message = "この文章は中立的な感情を持っています。"
 
-    return render_template('index.html', text=text, result=result, response_message=response_message)
+        # テキスト解析を実行
+        analysis = text_analyzer.analyze(text)
+
+        # HTMLテンプレートに渡すデータを準備
+        result = {
+            'label': label,
+            'score_text': "高い" if score > 0.5 else "低い"
+        }
+
+    return render_template('index.html', result=result, response_message=response_message, text=text, analysis=analysis)
 
 if __name__ == '__main__':
     app.run(debug=True)

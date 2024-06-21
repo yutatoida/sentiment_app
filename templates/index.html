@@ -1,40 +1,60 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Sentiment Analysis</title>
-      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
-  </head>
-  <body class="bg-light">
-  <div class="container py-5">
-    <h1 class="text-center mb-5">感情分析</h1>
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <form id="sentiment-form" method="POST" action="/analyze" class="mb-4">
-          <div class="mb-3">
-            <textarea name="text" rows="4" class="form-control" placeholder="Enter text here..."></textarea>
-          </div>
-          <button id="analyze-button" type="submit" class="btn btn-primary">分析</button>
-          <div id="loading" class="mt-3 d-none">
-            <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-            <span id="loading-text" class="ms-2">分析中...</span>
-          </div>
-        </form>
-          {% if result %}
-            <div class="alert alert-info">
-              <h2 class="h4">分析結果:</h2>
-              <p><strong>内容:</strong> {{ text }}</p>
-              <p><strong>判定:</strong> {{ result.label }}</p>
-              <p>{{ response_message }}</p>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>感情分析</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .bg-positive {
+            background-color: #FFCCCC; /* ポジティブな背景色 */
+        }
+
+        .bg-negative {
+            background-color: #CCE5FF; /* ネガティブな背景色 */
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container py-5">
+        <h1 class="text-center mb-5">感情分析</h1>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <form id="sentiment-form" method="POST" action="/" class="mb-4">
+                    <div class="mb-3">
+                        <textarea name="text" rows="4" class="form-control" placeholder="Enter text here..."></textarea>
+                    </div>
+                    <button id="analyze-button" type="submit" class="btn btn-primary">分析</button>
+                    <div id="loading" class="mt-3 d-none">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <span id="loading-text" class="ms-2">分析中...</span>
+                    </div>
+                </form>
+                {% if result %}
+                    <div class="alert alert-info {% if result.label == 'POSITIVE' %}bg-positive{% elif result.label == 'NEGATIVE' %}bg-negative{% endif %}">
+                        <h2 class="h4">分析結果:</h2>
+                        <p><strong>内容:</strong> {{ text }}</p>
+                        <p><strong>判定:</strong> {{ result.label }}</p>
+                        <p>{{ response_message }}</p>
+                    </div>
+                {% endif %}
+                {% if analysis %}
+                    <div class="alert alert-secondary mt-4">
+                        <h2 class="h4">テキスト解析:</h2>
+                        <p><strong>主語:</strong> {{ analysis.subjects | join(', ') }}</p>
+                        <p><strong>動詞:</strong> {{ analysis.verbs | join(', ') }}</p>
+                        <p><strong>形容詞:</strong> {{ analysis.adjectives | join(', ') }}</p>
+                        <p><strong>副詞:</strong> {{ analysis.adverbs | join(', ') }}</p>
+                        <p><strong>助動詞:</strong> {{ analysis.auxiliary_verbs | join(', ') }}</p>
+                        <p><strong>その他:</strong> {{ analysis.others | join(', ') }}</p>
+                    </div>
+                {% endif %}
             </div>
-          {% endif %}
         </div>
     </div>
-    </div>
-      <script>
+    <script>
         document.getElementById('sentiment-form').addEventListener('submit', function(event) {
             event.preventDefault(); // フォームのデフォルトの送信を防ぐ
             document.getElementById('analyze-button').classList.add('d-none');
@@ -57,5 +77,5 @@
             }, 3000); // 3秒間待機
         });
     </script>
-  </body>
+</body>
 </html>
