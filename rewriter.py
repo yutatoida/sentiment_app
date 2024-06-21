@@ -1,8 +1,20 @@
 class TextRewriter:
-    def rewrite_to_negative(self, text):
-        # ここにポジティブな内容をネガティブに書き換えるロジックを実装
-        return "これはネガティブに書き換えたテキストです。"
+    def __init__(self):
+        # 簡単な変換ルールの辞書
+        self.polite_dict = {
+            "です": "でございます",
+            "ます": "ます",
+            "する": "いたします",
+            "ありがとう": "ありがとうございます",
+            "こんにちは": "こんにちは",
+            "こんばんは": "こんばんは",
+            "おはよう": "おはようございます",
+            "すみません": "申し訳ございません",
+            "わかりました": "承知いたしました",
+            "ない": "ございません"
+        }
 
-    def rewrite_to_positive(self, text):
-        # ここにネガティブな内容をポジティブに書き換えるロジックを実装
-        return "これはポジティブに書き換えたテキストです。"
+    def to_polite(self, text):
+        for casual, polite in self.polite_dict.items():
+            text = text.replace(casual, polite)
+        return text

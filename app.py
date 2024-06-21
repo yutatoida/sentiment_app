@@ -53,12 +53,10 @@ def rewrite():
     analysis_result = classifier(text)[0]
     label = analysis_result['label']
 
-    rewritten_text = text
+    rewritten_text = text_rewriter.to_polite(text)
 
-    if label == 'POSITIVE':
-        rewritten_text = text_rewriter.rewrite_to_negative(text)
-    elif label == 'NEGATIVE':
-        rewritten_text = text_rewriter.rewrite_to_positive(text)
+    if rewritten_text == text:
+        rewritten_text = "書き換えなし"
 
     return jsonify({'rewritten_text': rewritten_text})
 
