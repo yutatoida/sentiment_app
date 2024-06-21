@@ -1,6 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 from transformers import pipeline
 from analyzer import TextAnalyzer
+from rewriter import TextRewriter
 
 app = Flask(__name__)
 
@@ -9,6 +10,9 @@ classifier = pipeline('sentiment-analysis')
 
 # テキスト解析クラスの初期化
 text_analyzer = TextAnalyzer()
+
+# テキスト書き換えクラスの初期化
+text_rewriter = TextRewriter()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
@@ -41,6 +45,22 @@ def index():
         }
 
     return render_template('index.html', result=result, response_message=response_message, text=text, analysis=analysis)
+
+@app.route('/rewrite', methods=['POST'])
+def rewrite():
+    data = request.get_json()
+    text = data['text']
+    analysis_result = classifier(text)[0]
+    label = analysis_result['label']
+
+    rewritten_text = text
+
+    if label == 'POSITIVE':
+        rewritten_text = text_rewriter.rewrite_to_negative(text)
+    elif label == 'NEGATIVE':
+        rewritten_text = text_rewriter.rewrite_to_positive(text)
+
+    return jsonify({'rewritten_text': rewritten_text})
 
 if __name__ == '__main__':
     app.run(debug=True)
